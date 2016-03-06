@@ -1,0 +1,9 @@
+{
+  "name": "bartfeenstra/dependency-injection",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "BartFeenstra\\DependencyInjection\\": "src"
+    }
+  }
+}
