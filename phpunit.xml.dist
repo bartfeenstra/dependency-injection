@@ -7,7 +7,7 @@
         <ini name="memory_limit" value="-1"/>
     </php>
     <testsuites>
-        <testsuite name="bartfeenstra/dependency-injection unit test suite">
+        <testsuite name="bartfeenstra/dependency-retriever unit test suite">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>
