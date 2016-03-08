@@ -1,14 +1,9 @@
 <?php
 
-/**
- * @file
- * Contains \BartFeenstra\DependencyInjection\Factory.
- */
-
-namespace BartFeenstra\DependencyInjection;
+namespace BartFeenstra\DependencyRetriever;
 
 /**
- * Defines a class factory.
+ * Instantiates classes.
  */
 interface Factory {
 
@@ -17,13 +12,16 @@ interface Factory {
      *
      * @param string $className
      *   The fully qualified name of the class to instantiate.
-     * @param mixed[] $dependencies
-     *   The class constructor's dependencies and/or argument values, keyed by
-     *   argument name.
+     * @param mixed[] $overrideDependencies
+     *   Keys are constructor argument names, and values are argument values.
+     *   These override suggested dependencies and arguments' default values.
      *
      * @return object
      *   An instance of $className.
+     *
+     * @throws \BartFeenstra\DependencyRetriever\Exception\ClassNotFoundException
+     *   Thrown if no class named $className could be found.
      */
-    public function instantiate($className, array $dependencies = []);
+    public function instantiate($className, array $overrideDependencies = []);
 
 }
