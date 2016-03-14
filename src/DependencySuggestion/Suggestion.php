@@ -55,5 +55,4 @@ class Suggestion
     {
         return $this->dependencyId;
     }
-
 }

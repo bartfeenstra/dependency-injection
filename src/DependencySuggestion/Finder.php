@@ -21,5 +21,4 @@ interface Finder
      *   ordered by decreasing priority.
      */
     public function findSuggestedDependencyIds($className);
-
 }

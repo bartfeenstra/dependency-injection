@@ -11,7 +11,6 @@ use BartFeenstra\DependencyRetriever\Fixtures\DependencyFoo;
 use BartFeenstra\DependencyRetriever\Factory\SimpleFactory;
 use BartFeenstra\DependencyRetriever\DependencySuggestion\Finder;
 
-
 /**
  * @coversDefaultClass \BartFeenstra\DependencyRetriever\Factory\SimpleFactory
  */
@@ -51,7 +50,10 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
         $this->dependencyRetriever->knowsDependency('non_existent')->willReturn(false);
         $this->dependencyRetriever->retrieveDependency('foo')->willReturn($foo->reveal());
 
-        $this->sut = new SimpleFactory($this->suggestedDependencyFinder->reveal(), $this->dependencyRetriever->reveal());
+        $this->sut = new SimpleFactory(
+            $this->suggestedDependencyFinder->reveal(),
+            $this->dependencyRetriever->reveal()
+        );
     }
 
     /**
@@ -140,5 +142,4 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
             [ClassWithInheritedConstructorWithSuggestedDependencies::class, $suggestedDependencies]
         ];
     }
-
 }
