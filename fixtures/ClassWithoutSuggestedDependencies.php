@@ -14,5 +14,4 @@ class ClassWithoutSuggestedDependencies
     public function __construct()
     {
     }
-
 }

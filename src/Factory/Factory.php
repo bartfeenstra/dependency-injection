@@ -11,7 +11,7 @@ interface Factory
     /**
      * Instantiates a class.
      *
-     * @param string $className
+     * @param string  $className
      *   The fully qualified name of the class to instantiate.
      * @param mixed[] $overrideDependencies
      *   Keys are constructor argument names, and values are argument values.
@@ -21,5 +21,4 @@ interface Factory
      *   An instance of $className.
      */
     public function instantiate($className, array $overrideDependencies = []);
-
 }

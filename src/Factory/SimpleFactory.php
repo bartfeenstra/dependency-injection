@@ -71,11 +71,15 @@ class SimpleFactory implements Factory
         // Retrieve dependencies that aren't overridden.
         $suggestedDependencyIds = $this->suggestedDependencyFinder->findSuggestedDependencyIds($className);
         $suggestedDependencies = [];
-        foreach (array_diff_key($suggestedDependencyIds,
-            $overrideDependencies) as $argumentName => $argumentSuggestedDependencyIds) {
+        foreach (array_diff_key(
+            $suggestedDependencyIds,
+            $overrideDependencies
+        ) as $argumentName => $argumentSuggestedDependencyIds) {
             $retrieverName = $this->dependencyRetriever->getName();
-            if (isset($argumentSuggestedDependencyIds[$retrieverName]) && $this->dependencyRetriever->knowsDependency($argumentSuggestedDependencyIds[$retrieverName])) {
-                $suggestedDependencies[$argumentName] = $this->dependencyRetriever->retrieveDependency($argumentSuggestedDependencyIds[$retrieverName]);
+            if (isset($argumentSuggestedDependencyIds[$retrieverName]) &&
+                $this->dependencyRetriever->knowsDependency($argumentSuggestedDependencyIds[$retrieverName])) {
+                $suggestedDependencies[$argumentName] =
+                    $this->dependencyRetriever->retrieveDependency($argumentSuggestedDependencyIds[$retrieverName]);
             }
         };
 
@@ -90,20 +94,24 @@ class SimpleFactory implements Factory
 
         // We now have dependencies for all arguments. Put them in the correct
         // order.
-        uksort($dependencies, function ($argumentAName, $argumentBName) use ($arguments) {
-            /** @var \ReflectionParameter[] $arguments */
-            $argumentAPosition = $arguments[$argumentAName]->getPosition();
-            $argumentBPosition = $arguments[$argumentBName]->getPosition();
-            if ($argumentAPosition == $argumentBPosition) {
-                return 0;
-            } elseif ($argumentAPosition > $argumentBPosition) {
-                return 1;
-            } else {
-                return -1;
+        uksort(
+            $dependencies,
+            function ($argumentAName, $argumentBName) use ($arguments) {
+                /**
+                 * @var \ReflectionParameter[] $arguments
+                 */
+                $argumentAPosition = $arguments[$argumentAName]->getPosition();
+                $argumentBPosition = $arguments[$argumentBName]->getPosition();
+                if ($argumentAPosition == $argumentBPosition) {
+                    return 0;
+                } elseif ($argumentAPosition > $argumentBPosition) {
+                    return 1;
+                } else {
+                    return -1;
+                }
             }
-        });
+        );
 
         return new $className(...array_values($dependencies));
     }
-
 }

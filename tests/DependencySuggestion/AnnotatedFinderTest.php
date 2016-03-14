@@ -74,5 +74,4 @@ class AnnotatedFinderTest extends \PHPUnit_Framework_TestCase
             [[], ClassWithoutConstructor::class],
         ];
     }
-
 }

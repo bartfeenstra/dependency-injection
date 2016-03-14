@@ -35,5 +35,4 @@ class AnnotatedFinder implements Finder
 
         return $suggestedDependencies;
     }
-
 }

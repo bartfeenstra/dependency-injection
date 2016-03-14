@@ -53,5 +53,4 @@ class SuggestionTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame($this->dependencyId, $this->sut->getDependencyId());
     }
-
 }

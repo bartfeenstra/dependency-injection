@@ -53,5 +53,4 @@ class MissingDependencyExceptionTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame($this->argumentNames, $this->sut->getArgumentNames());
     }
-
 }

@@ -42,5 +42,4 @@ interface Retriever
      *   The dependency.
      */
     public function retrieveDependency($id);
-
 }
