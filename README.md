@@ -1,5 +1,7 @@
 # Dependency Retriever (woof!)
 
+[![Build Status](https://travis-ci.org/bartfeenstra/dependency-retriever.svg?branch=master)](https://travis-ci.org/bartfeenstra/dependency-retriever)
+
 This package is a tool to make
 [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) and 
 class instantiation easier. Its API allows class' dependencies to be discovered 
