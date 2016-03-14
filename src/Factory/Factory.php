@@ -1,11 +1,12 @@
 <?php
 
-namespace BartFeenstra\DependencyRetriever;
+namespace BartFeenstra\DependencyRetriever\Factory;
 
 /**
  * Instantiates classes.
  */
-interface Factory {
+interface Factory
+{
 
     /**
      * Instantiates a class.
@@ -18,9 +19,6 @@ interface Factory {
      *
      * @return object
      *   An instance of $className.
-     *
-     * @throws \BartFeenstra\DependencyRetriever\Exception\ClassNotFoundException
-     *   Thrown if no class named $className could be found.
      */
     public function instantiate($className, array $overrideDependencies = []);
 

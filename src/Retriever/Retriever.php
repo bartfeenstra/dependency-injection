@@ -1,11 +1,11 @@
 <?php
 
-namespace BartFeenstra\DependencyRetriever;
+namespace BartFeenstra\DependencyRetriever\Retriever;
 
 /**
  * Defines a dependency retriever.
  */
-interface DependencyRetriever
+interface Retriever
 {
 
     /**
@@ -19,7 +19,7 @@ interface DependencyRetriever
      * @return string
      *   The value MUST match self::VALID_NAME_PCRE_PATTERN.
      */
-    public function respondsTo();
+    public function getName();
 
     /**
      * Checks whether a dependency can be retrieved.
@@ -30,7 +30,7 @@ interface DependencyRetriever
      * @return bool
      *   Whether the dependency is known.
      */
-    public function seesDependency($id);
+    public function knowsDependency($id);
 
     /**
      * Retrieves a dependency.

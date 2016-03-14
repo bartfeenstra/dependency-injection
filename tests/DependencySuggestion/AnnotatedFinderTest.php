@@ -1,34 +1,30 @@
 <?php
 
-/**
- * @file
- * Contains \BartFeenstra\DependencyRetriever\Tests\AnnotatedSuggestedDependencyFinderTest.
- */
+namespace BartFeenstra\DependencyRetriever\Tests\DependencySuggestion;
 
-namespace BartFeenstra\DependencyRetriever\Tests;
-
-use BartFeenstra\DependencyRetriever\AnnotatedSuggestedDependencyFinder;
+use BartFeenstra\DependencyRetriever\DependencySuggestion\AnnotatedFinder;
+use BartFeenstra\DependencyRetriever\DependencySuggestion\Suggestion;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithInheritedConstructorWithSuggestedDependencies;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithoutConstructor;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithoutSuggestedDependencies;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithSuggestedDependencies;
 
 /**
- * @coversDefaultClass \BartFeenstra\DependencyRetriever\AnnotatedSuggestedDependencyFinder
+ * @coversDefaultClass \BartFeenstra\DependencyRetriever\DependencySuggestion\AnnotatedFinder
  */
-class AnnotatedSuggestedDependencyFinderTest extends \PHPUnit_Framework_TestCase
+class AnnotatedFinderTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
      * The subject under test.
      *
-     * @var \BartFeenstra\DependencyRetriever\AnnotatedSuggestedDependencyFinder
+     * @var \BartFeenstra\DependencyRetriever\DependencySuggestion\AnnotatedFinder
      */
     protected $sut;
 
     public function setUp()
     {
-        $this->sut = new AnnotatedSuggestedDependencyFinder();
+        $this->sut = new AnnotatedFinder();
     }
 
     /**
@@ -44,7 +40,7 @@ class AnnotatedSuggestedDependencyFinderTest extends \PHPUnit_Framework_TestCase
      */
     public function testFindSuggestedDependencies(array $expectedSuggestedDependencies, $className)
     {
-        $this->assertSame($expectedSuggestedDependencies, $this->sut->findSuggestedDependencyIds($className));
+        $this->assertEquals($expectedSuggestedDependencies, $this->sut->findSuggestedDependencyIds($className));
     }
 
     /**
@@ -62,13 +58,13 @@ class AnnotatedSuggestedDependencyFinderTest extends \PHPUnit_Framework_TestCase
     {
         $suggestedDependencies = [
             'baz' => [
-                'golden' => 'non_existent',
+                new Suggestion('golden', 'non_existent'),
             ],
             'bar' => [
-                'labrador' => 'bar',
+                new Suggestion('labrador', 'bar'),
             ],
             'foo' => [
-                'golden' => 'foo',
+                new Suggestion('golden', 'foo'),
             ],
         ];
         return [
@@ -77,16 +73,6 @@ class AnnotatedSuggestedDependencyFinderTest extends \PHPUnit_Framework_TestCase
             [[], ClassWithoutSuggestedDependencies::class],
             [[], ClassWithoutConstructor::class],
         ];
-    }
-
-    /**
-     * @covers ::findSuggestedDependencyIds
-     *
-     * @expectedException \BartFeenstra\DependencyRetriever\Exception\ClassNotFoundException
-     */
-    public function testFindSuggestedDependenciesWithInvalidClassName()
-    {
-        $this->sut->findSuggestedDependencyIds('\BartFeenstra\DependencyRetriever\NonExistentClass');
     }
 
 }

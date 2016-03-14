@@ -1,7 +1,9 @@
 <?php
 
-namespace BartFeenstra\DependencyRetriever;
+namespace BartFeenstra\DependencyRetriever\Factory;
 
+use BartFeenstra\DependencyRetriever\Retriever\Retriever;
+use BartFeenstra\DependencyRetriever\DependencySuggestion\Finder;
 use BartFeenstra\DependencyRetriever\Exception\MissingDependencyException;
 
 /**
@@ -13,28 +15,28 @@ class SimpleFactory implements Factory
     /**
      * The suggested dependency finder.
      *
-     * @var \BartFeenstra\DependencyRetriever\SuggestedDependencyFinder
+     * @var \BartFeenstra\DependencyRetriever\DependencySuggestion\Finder
      */
     protected $suggestedDependencyFinder;
 
     /**
      * The dependency retriever.
      *
-     * @var \BartFeenstra\DependencyRetriever\DependencyRetriever
+     * @var \BartFeenstra\DependencyRetriever\Retriever\Retriever
      */
     protected $dependencyRetriever;
 
     /**
      * Constructs a new instance.
      *
-     * @param \BartFeenstra\DependencyRetriever\SuggestedDependencyFinder $suggestedDependencyFinder
+     * @param \BartFeenstra\DependencyRetriever\DependencySuggestion\Finder $suggestedDependencyFinder
      *   The suggested dependency finder.
-     * @param \BartFeenstra\DependencyRetriever\DependencyRetriever $dependencyRetriever
+     * @param \BartFeenstra\DependencyRetriever\Retriever\Retriever $dependencyRetriever
      *   The dependency retriever.
      */
     public function __construct(
-        SuggestedDependencyFinder $suggestedDependencyFinder,
-        DependencyRetriever $dependencyRetriever
+        Finder $suggestedDependencyFinder,
+        Retriever $dependencyRetriever
     ) {
         $this->dependencyRetriever = $dependencyRetriever;
         $this->suggestedDependencyFinder = $suggestedDependencyFinder;
@@ -51,53 +53,52 @@ class SimpleFactory implements Factory
 
         $method = $class->getMethod('__construct');
 
+        // Get the argument names and set default values.
+        $arguments = [];
+        $defaultDependencies = [];
+        foreach ($method->getParameters() as $argument) {
+            $arguments[$argument->getName()] = $argument;
+            if ($argument->isDefaultValueAvailable()) {
+                $defaultDependencies[$argument->getName()] = $argument->getDefaultValue();
+            }
+        }
+
         // Instantiate quickly if the constructor has no arguments.
-        if ($method->getNumberOfParameters() === 0) {
+        if (!$arguments) {
             return new $className();
         }
 
         // Retrieve dependencies that aren't overridden.
         $suggestedDependencyIds = $this->suggestedDependencyFinder->findSuggestedDependencyIds($className);
-        $retrievedDependencies = [];
-        foreach (array_diff_key($suggestedDependencyIds, $overrideDependencies) as $argumentName => $argumentSuggestedDependencyIds) {
-            $retrieverName = $this->dependencyRetriever->respondsTo();
-            if (isset($argumentSuggestedDependencyIds[$retrieverName]) && $this->dependencyRetriever->seesDependency($argumentSuggestedDependencyIds[$retrieverName])) {
-                $retrievedDependencies[$argumentName] =  $this->dependencyRetriever->retrieveDependency($argumentSuggestedDependencyIds[$retrieverName]);
+        $suggestedDependencies = [];
+        foreach (array_diff_key($suggestedDependencyIds,
+            $overrideDependencies) as $argumentName => $argumentSuggestedDependencyIds) {
+            $retrieverName = $this->dependencyRetriever->getName();
+            if (isset($argumentSuggestedDependencyIds[$retrieverName]) && $this->dependencyRetriever->knowsDependency($argumentSuggestedDependencyIds[$retrieverName])) {
+                $suggestedDependencies[$argumentName] = $this->dependencyRetriever->retrieveDependency($argumentSuggestedDependencyIds[$retrieverName]);
             }
         };
-        $dependencies = $overrideDependencies + $retrievedDependencies;
 
-        // Build a list of constructor arguments, keyed by argument name.
-        /** @var \ReflectionParameter[] $arguments */
-        $arguments = array_combine(array_map(function(\ReflectionParameter $argument) {
-            return $argument->getName();
-        }, $method->getParameters()), $method->getParameters());
-
-        // Add default values for missing dependencies.
-        foreach ($arguments as $argument) {
-            if (!array_key_exists($argument->getName(), $dependencies) && $argument->isDefaultValueAvailable()) {
-                $dependencies[$argument->getName()] = $argument->getDefaultValue();
-            }
-        }
+        // Merge dependencies.
+        $dependencies = array_merge($defaultDependencies, $suggestedDependencies, $overrideDependencies);
 
         // Check if we have values for all arguments.
         $namesOfArgumentsWithoutValues = array_diff_key($arguments, $dependencies);
         if ($namesOfArgumentsWithoutValues) {
-            throw new MissingDependencyException(reset($namesOfArgumentsWithoutValues));
+            throw new MissingDependencyException($className, $namesOfArgumentsWithoutValues);
         }
 
         // We now have dependencies for all arguments. Put them in the correct
         // order.
         uksort($dependencies, function ($argumentAName, $argumentBName) use ($arguments) {
+            /** @var \ReflectionParameter[] $arguments */
             $argumentAPosition = $arguments[$argumentAName]->getPosition();
             $argumentBPosition = $arguments[$argumentBName]->getPosition();
             if ($argumentAPosition == $argumentBPosition) {
                 return 0;
-            }
-            elseif ($argumentAPosition > $argumentBPosition) {
+            } elseif ($argumentAPosition > $argumentBPosition) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
         });

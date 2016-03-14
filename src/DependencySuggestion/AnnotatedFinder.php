@@ -1,13 +1,11 @@
 <?php
 
-namespace BartFeenstra\DependencyRetriever;
-
-use BartFeenstra\DependencyRetriever\Exception\ClassNotFoundException;
+namespace BartFeenstra\DependencyRetriever\DependencySuggestion;
 
 /**
- * Reads dependency suggestion annotations.
+ * Finds dependency suggestions through annotations.
  */
-class AnnotatedSuggestedDependencyFinder implements SuggestedDependencyFinder
+class AnnotatedFinder implements Finder
 {
 
     /**
@@ -17,10 +15,6 @@ class AnnotatedSuggestedDependencyFinder implements SuggestedDependencyFinder
 
     public function findSuggestedDependencyIds($className)
     {
-        if (!class_exists($className)) {
-            throw new ClassNotFoundException($className);
-        }
-
         $class = new \ReflectionClass($className);
 
         // If the class has no constructor, it has no constructor dependencies
@@ -36,7 +30,7 @@ class AnnotatedSuggestedDependencyFinder implements SuggestedDependencyFinder
         preg_match_all($pattern, $comment, $matches);
         $suggestedDependencies = [];
         foreach ($matches[3] as $i => $argumentName) {
-            $suggestedDependencies[$argumentName][$matches[1][$i]] = $matches[2][$i];
+            $suggestedDependencies[$argumentName][] = new Suggestion($matches[1][$i], $matches[2][$i]);
         }
 
         return $suggestedDependencies;

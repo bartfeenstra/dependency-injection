@@ -1,21 +1,19 @@
 <?php
 
-namespace BartFeenstra\DependencyRetriever\Tests;
+namespace BartFeenstra\DependencyRetriever\Tests\Factory;
 
-use BartFeenstra\DependencyRetriever\DependencyRetriever;
+use BartFeenstra\DependencyRetriever\Retriever\Retriever;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithInheritedConstructorWithSuggestedDependencies;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithoutConstructor;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithoutSuggestedDependencies;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithSuggestedDependencies;
-use BartFeenstra\DependencyRetriever\Fixtures\DependencyBar;
 use BartFeenstra\DependencyRetriever\Fixtures\DependencyFoo;
-use BartFeenstra\DependencyRetriever\SimpleFactory;
-use BartFeenstra\DependencyRetriever\SuggestedDependencyFinder;
+use BartFeenstra\DependencyRetriever\Factory\SimpleFactory;
+use BartFeenstra\DependencyRetriever\DependencySuggestion\Finder;
 
-;
 
 /**
- * @coversDefaultClass \BartFeenstra\DependencyRetriever\SimpleFactory
+ * @coversDefaultClass \BartFeenstra\DependencyRetriever\Factory\SimpleFactory
  */
 class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,34 +21,34 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * The suggested dependency finder.
      *
-     * @var \BartFeenstra\DependencyRetriever\SuggestedDependencyFinder
+     * @var \BartFeenstra\DependencyRetriever\DependencySuggestion\Finder
      */
     protected $suggestedDependencyFinder;
 
     /**
      * The dependency retriever.
      *
-     * @var \BartFeenstra\DependencyRetriever\DependencyRetriever
+     * @var \BartFeenstra\DependencyRetriever\Retriever\Retriever
      */
     protected $dependencyRetriever;
 
     /**
      * The subject under test.
      *
-     * @var \BartFeenstra\DependencyRetriever\Factory
+     * @var \BartFeenstra\DependencyRetriever\Factory\Factory
      */
     protected $sut;
 
     public function setUp()
     {
-        $this->suggestedDependencyFinder = $this->prophesize(SuggestedDependencyFinder::class);
+        $this->suggestedDependencyFinder = $this->prophesize(Finder::class);
 
         $foo = $this->prophesize(DependencyFoo::class);
 
-        $this->dependencyRetriever = $this->prophesize(DependencyRetriever::class);
-        $this->dependencyRetriever->respondsTo()->willReturn('golden');
-        $this->dependencyRetriever->seesDependency('foo')->willReturn(true);
-        $this->dependencyRetriever->seesDependency('non_existent')->willReturn(false);
+        $this->dependencyRetriever = $this->prophesize(Retriever::class);
+        $this->dependencyRetriever->getName()->willReturn('golden');
+        $this->dependencyRetriever->knowsDependency('foo')->willReturn(true);
+        $this->dependencyRetriever->knowsDependency('non_existent')->willReturn(false);
         $this->dependencyRetriever->retrieveDependency('foo')->willReturn($foo->reveal());
 
         $this->sut = new SimpleFactory($this->suggestedDependencyFinder->reveal(), $this->dependencyRetriever->reveal());
