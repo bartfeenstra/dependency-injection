@@ -41,7 +41,7 @@ interface Retriever
      * @return mixed
      *   The dependency.
      *
-     * @throws \BartFeenstra\DependencyRetriever\Exception\MissingDependencyException
+     * @throws \BartFeenstra\DependencyRetriever\Exception\UnknownDependencyException
      *   Thrown if the requested dependency is unknown.
      */
     public function retrieveDependency($id);
