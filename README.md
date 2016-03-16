@@ -18,7 +18,7 @@ class Bar {
   /**
    * @suggestedDependency drupalContainerService:logger.channel.form $formLogger
    */
-  public function __construct(LoggerInterface $formLogger) {
+  public function __construct(LoggerInterface $formLogger, $severity) {
     // ...
   }
 
@@ -29,3 +29,13 @@ When used in a system in which Drupal's service container is available, the
 `logger.channel.form` service is a suggested dependency for the `$formLogger` 
 parameter. The `drupalContainerService` retriever can retrieve this dependency 
 and give it to the factory to be injected during class instantiation.
+
+```php
+$factory = new SimpleFactory(new AnnotatedFinder(), new DrupalContainerServiceRetriever());
+$bar = $factory->instantiate(Bar::class, [
+  'severity' => LogLevel::WARNING,
+]);
+```
+In this example, `Bar` is instantiated using an overridden dependency (value) for `$severity`, but `AnnotatedFinder`, 
+and the hypothetical `DrupalContainerServiceRetriever` provide the factory with a dependency for `$formLogger` based on 
+`Bar`'s `@suggestedDependency` annotation.
