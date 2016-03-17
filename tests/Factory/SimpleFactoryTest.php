@@ -2,6 +2,7 @@
 
 namespace BartFeenstra\DependencyRetriever\Tests\Factory;
 
+use BartFeenstra\DependencyRetriever\Fixtures\DependencyBar;
 use BartFeenstra\DependencyRetriever\Retriever\Retriever;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithInheritedConstructorWithSuggestedDependencies;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithoutConstructor;
@@ -25,11 +26,18 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
     protected $suggestedDependencyFinder;
 
     /**
-     * The dependency retriever.
+     * The "golden" dependency retriever.
      *
      * @var \BartFeenstra\DependencyRetriever\Retriever\Retriever
      */
-    protected $dependencyRetriever;
+    protected $goldenDependencyRetriever;
+
+    /**
+     * The "labrador" dependency retriever.
+     *
+     * @var \BartFeenstra\DependencyRetriever\Retriever\Retriever
+     */
+    protected $labradorDependencyRetriever;
 
     /**
      * The subject under test.
@@ -43,16 +51,23 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
         $this->suggestedDependencyFinder = $this->prophesize(Finder::class);
 
         $foo = $this->prophesize(DependencyFoo::class);
+        $bar = $this->prophesize(DependencyBar::class);
 
-        $this->dependencyRetriever = $this->prophesize(Retriever::class);
-        $this->dependencyRetriever->getName()->willReturn('golden');
-        $this->dependencyRetriever->knowsDependency('foo')->willReturn(true);
-        $this->dependencyRetriever->knowsDependency('non_existent')->willReturn(false);
-        $this->dependencyRetriever->retrieveDependency('foo')->willReturn($foo->reveal());
+        $this->goldenDependencyRetriever = $this->prophesize(Retriever::class);
+        $this->goldenDependencyRetriever->getName()->willReturn('golden');
+        $this->goldenDependencyRetriever->knowsDependency('foo')->willReturn(true);
+        $this->goldenDependencyRetriever->knowsDependency('non_existent')->willReturn(false);
+        $this->goldenDependencyRetriever->retrieveDependency('foo')->willReturn($foo->reveal());
+
+        $this->labradorDependencyRetriever = $this->prophesize(Retriever::class);
+        $this->labradorDependencyRetriever->getName()->willReturn('labrador');
+        $this->labradorDependencyRetriever->knowsDependency('bar')->willReturn(true);
+        $this->labradorDependencyRetriever->knowsDependency('non_existent')->willReturn(false);
+        $this->labradorDependencyRetriever->retrieveDependency('bar')->willReturn($bar->reveal());
 
         $this->sut = new SimpleFactory(
             $this->suggestedDependencyFinder->reveal(),
-            $this->dependencyRetriever->reveal()
+            [$this->goldenDependencyRetriever->reveal(), $this->labradorDependencyRetriever->reveal()]
         );
     }
 
@@ -141,5 +156,33 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
             [ClassWithSuggestedDependencies::class, $suggestedDependencies],
             [ClassWithInheritedConstructorWithSuggestedDependencies::class, $suggestedDependencies]
         ];
+    }
+
+    /**
+     * @covers ::addDependencyRetriever
+     *
+     * @dataProvider provideInstantiateWithSuggestedDependencies
+     *
+     * @param string $className
+     *   The fully qualified name of the class to instantiate.
+     * @param array[] $suggestedDependencyIds
+     *   Keys are constructor argument names, and values are arrays of which
+     *   keys are dependency retriever names, and values are dependency IDs.
+     */
+    public function testInstantiateWithSuggestedConstructorDependenciesAndSetterRetrieverInjection($className, array $suggestedDependencyIds = [])
+    {
+        $this->sut = new SimpleFactory(
+            $this->suggestedDependencyFinder->reveal()
+        );
+        $this->sut->addDependencyRetriever($this->goldenDependencyRetriever->reveal());
+        $this->sut->addDependencyRetriever($this->labradorDependencyRetriever->reveal());
+
+        $this->suggestedDependencyFinder->findSuggestedDependencyIds($className)->willReturn($suggestedDependencyIds);
+
+        $overriddenDependencies = [
+            'qux' => new \stdClass(),
+        ];
+
+        $this->assertInstanceOf($className, $this->sut->instantiate($className, $overriddenDependencies));
     }
 }
