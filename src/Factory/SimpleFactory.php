@@ -90,9 +90,9 @@ class SimpleFactory implements Factory
         $suggestedDependencyIds = $this->suggestedDependencyFinder->findSuggestedDependencyIds($className);
         $suggestedDependencies = [];
         foreach (array_diff_key(
-                     $suggestedDependencyIds,
-                     $overrideDependencies
-                 ) as $argumentName => $argumentSuggestedDependencyIds) {
+            $suggestedDependencyIds,
+            $overrideDependencies
+        ) as $argumentName => $argumentSuggestedDependencyIds) {
             foreach ($this->dependencyRetrievers as $dependencyRetriever) {
                 $retrieverName = $dependencyRetriever->getName();
                 if (isset($argumentSuggestedDependencyIds[$retrieverName]) &&

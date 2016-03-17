@@ -169,8 +169,10 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
      *   Keys are constructor argument names, and values are arrays of which
      *   keys are dependency retriever names, and values are dependency IDs.
      */
-    public function testInstantiateWithSuggestedConstructorDependenciesAndSetterRetrieverInjection($className, array $suggestedDependencyIds = [])
-    {
+    public function testInstantiateWithSuggestedConstructorDependenciesAndSetterRetrieverInjection(
+        $className,
+        array $suggestedDependencyIds = []
+    ) {
         $this->sut = new SimpleFactory(
             $this->suggestedDependencyFinder->reveal()
         );
