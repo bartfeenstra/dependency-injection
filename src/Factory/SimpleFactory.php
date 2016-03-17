@@ -87,19 +87,23 @@ class SimpleFactory implements Factory
         }
 
         // Retrieve dependencies that aren't overridden.
-        $suggestedDependencyIds = $this->suggestedDependencyFinder->findSuggestedDependencyIds($className);
+        $dependencySuggestions = $this->suggestedDependencyFinder->findSuggestedDependencyIds($className);
         $suggestedDependencies = [];
         foreach (array_diff_key(
-            $suggestedDependencyIds,
+            $dependencySuggestions,
             $overrideDependencies
-        ) as $argumentName => $argumentSuggestedDependencyIds) {
+        ) as $argumentName => $argumentDependencySuggestions) {
+            /**
+             * @var \BartFeenstra\DependencyRetriever\DependencySuggestion\Suggestion[] $argumentDependencySuggestions
+             */
             foreach ($this->dependencyRetrievers as $dependencyRetriever) {
                 $retrieverName = $dependencyRetriever->getName();
-                if (isset($argumentSuggestedDependencyIds[$retrieverName]) &&
-                    $dependencyRetriever->knowsDependency($argumentSuggestedDependencyIds[$retrieverName])
-                ) {
-                    $suggestedDependencies[$argumentName] =
-                        $dependencyRetriever->retrieveDependency($argumentSuggestedDependencyIds[$retrieverName]);
+                foreach ($argumentDependencySuggestions as $argumentDependencySuggestion) {
+                    if ($retrieverName == $argumentDependencySuggestion->getDependencyRetrieverName()
+                        && $dependencyRetriever->knowsDependency($argumentDependencySuggestion->getDependencyId())) {
+                        $suggestedDependencies[$argumentName] =
+                            $dependencyRetriever->retrieveDependency($argumentDependencySuggestion->getDependencyId());
+                    }
                 }
             }
         };
@@ -108,7 +112,7 @@ class SimpleFactory implements Factory
         $dependencies = array_merge($defaultDependencies, $suggestedDependencies, $overrideDependencies);
 
         // Check if we have values for all arguments.
-        $namesOfArgumentsWithoutValues = array_diff_key($arguments, $dependencies);
+        $namesOfArgumentsWithoutValues = array_keys(array_diff_key($arguments, $dependencies));
         if ($namesOfArgumentsWithoutValues) {
             throw new MissingDependencyException($className, $namesOfArgumentsWithoutValues);
         }

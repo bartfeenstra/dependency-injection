@@ -2,6 +2,7 @@
 
 namespace BartFeenstra\DependencyRetriever\Tests\Factory;
 
+use BartFeenstra\DependencyRetriever\DependencySuggestion\Suggestion;
 use BartFeenstra\DependencyRetriever\Fixtures\DependencyBar;
 use BartFeenstra\DependencyRetriever\Retriever\Retriever;
 use BartFeenstra\DependencyRetriever\Fixtures\ClassWithInheritedConstructorWithSuggestedDependencies;
@@ -143,13 +144,13 @@ class SimpleFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $suggestedDependencies = [
             'baz' => [
-                'golden' => 'non_existent',
+                new Suggestion('labrador', 'non_existent'),
             ],
             'bar' => [
-                'labrador' => 'bar',
+                new Suggestion('labrador', 'bar'),
             ],
             'foo' => [
-                'golden' => 'foo',
+                new Suggestion('golden', 'foo'),
             ],
         ];
         return [
