@@ -3,8 +3,7 @@
 namespace BartFeenstra\DependencyRetriever\Exception;
 
 /**
- * Defines a situation in which a specified one or more constructor
- * dependencies are missing.
+ * Defines a situation in which a specified dependency is unknown.
  */
 class UnknownDependencyException extends \Exception
 {
