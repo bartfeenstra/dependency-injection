@@ -8,6 +8,10 @@
     "phpunit/phpunit": "~5.2",
     "squizlabs/php_codesniffer": "~2.5"
   },
+  "suggest": {
+    "bartfeenstra/dependency-retriever-symfony-bridge": "Retrieves dependencies from Symfony's service container.",
+    "drupal/retriever": "Retrieves dependencies from Drupal."
+  },
   "autoload": {
     "psr-4": {
       "BartFeenstra\\DependencyRetriever\\": "src"
